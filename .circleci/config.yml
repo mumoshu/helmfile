@@ -102,9 +102,6 @@ workflows:
                 - master
                 - /pull.*/
       - release:
-          requires:
-          - test
-          - integration_tests
           filters:
             branches:
               ignore: /.*/
