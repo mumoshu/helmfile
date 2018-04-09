@@ -42,13 +42,13 @@ release: pristine cross
 .PHONY: release
 
 image: cross
-	docker build -t quay.io/roboll/helmfile:${TAG} .
+	docker build -t quay.io/${ORG}/helmfile:${TAG} .
 
 run: image
-	docker run --rm -it -t quay.io/roboll/helmfile:${TAG} sh
+	docker run --rm -it -t quay.io/${ORG}/helmfile:${TAG} sh
 
 push: image
-	docker push quay.io/roboll/helmfile:${TAG}
+	docker push quay.io/${ORG}/helmfile:${TAG}
 
 tools:
 	go get -u github.com/tcnksm/ghr github.com/mitchellh/gox
