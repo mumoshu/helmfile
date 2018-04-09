@@ -1,4 +1,4 @@
-ORG     := $(shell basename $(realpath ..))
+ORG     ?= $(shell basename $(realpath ..))
 PKGS    := $(shell go list ./... | grep -v /vendor/)
 
 build:
