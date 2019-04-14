@@ -711,11 +711,21 @@ func (st *HelmState) DiffReleases(helm helmexec.Interface, additionalValues []st
 			for prep := range jobQueue {
 				flags := prep.flags
 				release := prep.release
-				if err := helm.DiffRelease(st.createHelmContext(release, workerIndex), release.Name, normalizeChart(st.basePath, release.Chart), flags...); err != nil {
+				res, err := helm.DiffRelease(st.createHelmContext(release, workerIndex), release.Name, normalizeChart(st.basePath, release.Chart), flags...)
+				if err != nil {
 					switch e := err.(type) {
 					case *exec.ExitError:
 						// Propagate any non-zero exit status from the external command like `helm` that is failed under the hood
 						status := e.Sys().(syscall.WaitStatus)
+						remove := []string{
+							`identified at least one change, exiting with non-zero exit code`,
+							`plugin "diff" exited with error`,
+						}
+						for _, r := range remove {
+							re := regexp.MustCompile("(?m)[\r\n]+^.*" + r + ".*$")
+							res = re.ReplaceAllString(res, "")
+						}
+						st.logger.Info("info"+ res)
 						results <- diffResult{&DiffError{release, err, status.ExitStatus()}}
 					default:
 						results <- diffResult{&DiffError{release, err, 0}}

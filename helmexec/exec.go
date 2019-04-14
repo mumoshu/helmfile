@@ -175,13 +175,13 @@ func (helm *execer) TemplateRelease(chart string, flags ...string) error {
 	return err
 }
 
-func (helm *execer) DiffRelease(context HelmContext, name, chart string, flags ...string) error {
+func (helm *execer) DiffRelease(context HelmContext, name, chart string, flags ...string) (string, error) {
 	helm.logger.Infof("Comparing %v %v", name, chart)
 	preArgs := context.GetTillerlessArgs(helm.helmBinary)
 	env := context.getTillerlessEnv()
 	out, err := helm.exec(append(append(preArgs, "diff", "upgrade", "--allow-unreleased", name, chart), flags...), env)
 	helm.write(out)
-	return err
+	return string(out), err
 }
 
 func (helm *execer) Lint(chart string, flags ...string) error {
@@ -230,6 +230,6 @@ func (helm *execer) exec(args []string, env map[string]string) ([]byte, error) {
 
 func (helm *execer) write(out []byte) {
 	if len(out) > 0 {
-		helm.logger.Infof("%s", out)
+		helm.logger.Debugf("%s", out)
 	}
 }
